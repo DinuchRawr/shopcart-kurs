@@ -45,3 +45,12 @@ def test_total_with_percent_code(catalog):
 def test_unknown_code_is_rejected(catalog):
     with pytest.raises(InvalidDiscountCodeError):
         Cart(catalog).apply_code("NIEISTNIEJE")
+
+
+@pytest.mark.parametrize("code", ["lato10", "Lato10", "  LATO10  "])
+def test_apply_code_normalizes_case_and_spaces(catalog, code):
+    cart = Cart(catalog)
+    cart.add("BLU-001")
+    cart.apply_code(code)
+    assert cart.discount_code == "LATO10"
+    assert cart.total() == 176.01

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from shopcart.catalog import Catalog
-from shopcart.discounts import apply_discount, get_discount
+from shopcart.discounts import apply_discount, get_discount, normalize_code
 from shopcart.models import CartLine
 from shopcart.pricing import gross
 
@@ -29,7 +29,7 @@ class Cart:
 
     def apply_code(self, code: str) -> None:
         get_discount(code)  # rzuca InvalidDiscountCodeError dla nieznanego kodu
-        self.discount_code = code
+        self.discount_code = normalize_code(code)
 
     def item_count(self) -> int:
         return sum(line.quantity for line in self.lines)

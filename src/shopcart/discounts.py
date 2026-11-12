@@ -17,10 +17,15 @@ class DiscountNotApplicableError(ValueError):
     """Kod istnieje, ale nie spełniono jego warunków (np. minimalnej kwoty)."""
 
 
+def normalize_code(code: str) -> str:
+    """Ujednolica kod wpisany przez klienta: usuwa spacje z brzegów, zamienia na wielkie litery."""
+    return code.strip().upper()
+
+
 def get_discount(code: str) -> dict:
-    rule = DISCOUNT_CODES.get(code)
+    rule = DISCOUNT_CODES.get(normalize_code(code))
     if rule is None:
-        raise InvalidDiscountCodeError(code)
+        raise InvalidDiscountCodeError(f"Nieznany kod rabatowy: {code.strip()}")
     return rule
 
 
@@ -29,7 +34,7 @@ def apply_discount(total: float, code: str) -> float:
     rule = get_discount(code)
     if total < rule.get("min_total", 0):
         raise DiscountNotApplicableError(
-            f"Kod {code} wymaga zamówienia za min. {rule['min_total']} zł"
+            f"Kod {normalize_code(code)} wymaga zamówienia za min. {rule['min_total']} zł"
         )
     if rule["type"] == "percent":
         return total * (1 - rule["value"] / 100)
